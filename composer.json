@@ -1,0 +1,22 @@
+{
+  "name": "edmondscommerce/m2-hotfixes",
+  "description": "Hot fixes for core bugs and issues in Magento 2",
+  "keywords": [
+    "Magento",
+    "Magento 2",
+    "Bugs",
+    "Issues",
+    "Hot Fixes",
+    "Patch",
+    "Fixes"
+  ],
+  "homepage": "https://www.edmondscommerce.co.uk",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "edmondscommerce",
+      "email": "info@edmondscommerce.co.uk"
+    }
+  ],
+  "minimum-stability": "dev"
+}

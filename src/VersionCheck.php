@@ -1,40 +1,51 @@
 <?php namespace EdmondsCommerce\M2HotFixes;
 
-use function GuzzleHttp\json_decode;
-use function Magento\Framework\Filesystem\Driver\file_get_contents;
-use function Magento\Update\file_exists;
+use Composer\Composer;
 
 class VersionCheck
 {
-    const COMPOSER_JSON = "../../../composer.json";
+    private $composerJsonPath;
 
     /**
      * @var \stdClass
      */
     private $composerJson;
 
+    public function __construct()
+    {
+        $this->composerJsonPath = dirname(__DIR__, 4) . DIRECTORY_SEPARATOR . 'composer.json';
+    }
+
     public function check()
     {
+        echo $this->composerJsonPath . "\n";
         $json = $this->getComposerJson();
 
+        $magentoVersion = substr($json->require->{"magento/product-community-edition"}, 0, 5);
+        $moduleVersion = substr($json->require->{"edmondscommerce/m2-hotfixes"}, 0, 5);
 
-        $magentoVersion = '';
-        $moduleVersion = '';
+        if($magentoVersion != $moduleVersion)
+        {
+            throw new \Exception('Module version and Magento version mismatch'."\n".'Module: '.$moduleVersion.' Magento: '.$magentoVersion);
+        }
+
+        return true;
     }
 
     protected function getComposerJson()
     {
-        if($this->composerJson)
+        if ($this->composerJson)
         {
             return $this->composerJson;
         }
 
-        if(!file_exists(self::COMPOSER_JSON))
+        if (!file_exists($this->composerJsonPath))
         {
-            throw new \Exception('Unable to find composer json file');
+            throw new \Exception('Unable to find composer json file: ' . $this->composerJsonPath);
         }
 
-        $this->composerJson = json_decode(file_get_contents(self::COMPOSER_JSON));
+        $this->composerJson = json_decode(file_get_contents($this->composerJsonPath));
+
         return $this->getComposerJson();
     }
 }

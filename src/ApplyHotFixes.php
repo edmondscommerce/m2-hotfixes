@@ -17,13 +17,11 @@ class ApplyHotFixes
     {
         //Sanity check version
         $versionCheck = new VersionCheck();
-        $md5Check = new MD5Check();
+        $versionCheck->check();
 
-        // Do the stuff
-        if(!$versionCheck->check())
-        {
-            throw new \Exception('Magento version mismatch');
-        }
+        $md5Check = new MD5Check(__DIR__.'src/overrides');
+        $md5Check->check();
+
     }
 
     /**

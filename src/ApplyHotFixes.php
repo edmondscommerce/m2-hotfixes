@@ -11,19 +11,45 @@
  */
 class ApplyHotFixes
 {
-    const composer_json = "";
+
+    public static $overridePath;
+    public static $vendorPath;
 
     public static function run()
     {
+        //Set paths
+        self::$overridePath = dirname(__DIR__, 1).'/overrides/';
+        self::$vendorPath = dirname(__DIR__, 3);
+
         //Sanity check version
         $versionCheck = new VersionCheck();
         $versionCheck->check();
 
-        $md5Check = new MD5Check(dirname(__DIR__, 1).'/overrides/', dirname(__DIR__, 3));
-        $md5Check->check();
+        $md5Check = new MD5Check(self::$overridePath, self::$vendorPath);
+        if(!$md5Check->check())
+        {
+            echo "MD5 check failed, aborting\n";
+            return 1;
+        }
 
         //Copy the files
+        $files = $md5Check->getOverrideCollection()->getOverrideFiles();
 
+        $copyCheck = true;
+        foreach($files as $file)
+        {
+            $source = self::$overridePath.$file;
+            $destination = self::$vendorPath.'/'.$file;
+
+            echo "Rewriting: ".$destination."...\n";
+            if(!copy($source, $destination))
+            {
+                echo 'Could not copy to file '.$destination."\n";
+                $copyCheck = false;
+            }
+        }
+
+        return $copyCheck;
     }
 }
 

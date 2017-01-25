@@ -19,7 +19,7 @@ class ApplyHotFixes
         $versionCheck = new VersionCheck();
         $versionCheck->check();
 
-        $md5Check = new MD5Check(__DIR__.'src/overrides');
+        $md5Check = new MD5Check(dirname(__DIR__, 1).'/overrides');
         $md5Check->check();
 
     }

@@ -16,6 +16,9 @@ class VersionCheck
         $this->composerJsonPath = dirname(__DIR__, 4) . DIRECTORY_SEPARATOR . 'composer.json';
     }
 
+    /**
+     * Get the composer json, read it and determine version and only apply to the correct version for this module
+     */
     public function check()
     {
         echo $this->composerJsonPath . "\n";

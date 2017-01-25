@@ -8,63 +8,57 @@
 class MD5Check
 {
     private $overridePath;
+    private $vendorPath;
+    /**
+     * @var OverrideCollection
+     */
+    private $overrideCollection;
 
-    public function __construct($path)
+    public function __construct($overridePath, $vendorPath)
     {
-        $this->overridePath = $path;
-        echo $path . "\n";
+        $this->overridePath = $overridePath;
+        $this->vendorPath = $vendorPath;
+        $this->overrideCollection = new OverrideCollection($overridePath);
     }
 
     public function check()
     {
         $files = [];
-        $dirIter = new \DirectoryIterator($this->overridePath);
-
-        $files = $this->searchDir($dirIter);
-        $tree = $this->collapseDirArray($files);
-        var_dump($tree);
-
-        return true;
-    }
-
-    protected function collapseDirArray(array $tree, $prefix = '')
-    {
-        $result = [];
-        foreach ($tree as $key => $value)
+        $continue = true;
+        foreach ($this->overrideCollection->getOverrideFiles() as $overrideFile)
         {
-            if (is_array($value))
-            {
-                $result = $result + $this->collapseDirArray($value,   $prefix.'/'.$key);
-            }
-            else
-            {
-                $result[] =  trim($prefix.'/'. $value, '/');
-            }
-        }
+            $overridePath = $this->overridePath . $overrideFile;
+            $md5FilePath = $overridePath . '.md5';
+            $filePath = $this->vendorPath . '/' . $overrideFile;
 
-
-        return $result;
-    }
-
-    protected function searchDir(\DirectoryIterator $directoryIterator)
-    {
-        $files = [];
-        foreach ($directoryIterator as $node)
-        {
-            if ($node->isDir() && !$node->isDot())
+            $md5Check = file_get_contents($md5FilePath);
+            $file = file_get_contents($filePath);
+            if (!$file)
             {
-                $files[basename($node->getPath())] = $this->searchDir(new \DirectoryIterator($node->getPathname()));
+                echo "Could not read file: " . $filePath . "\n";
+                $continue = false;
                 continue;
             }
 
-            if ($node->isDot())
-            {
-                continue;
-            }
+            $fileMd5 = md5($file);
 
-            $files[] = $node->getFilename();
+            if ($fileMd5 != $md5Check)
+            {
+                $continue = false;
+                echo "MD5 check failed for " . $filePath . "\n";
+            }
         }
 
-        return $files;
+        return $continue;
     }
+
+    /**
+     * @return OverrideCollection
+     */
+    public function getOverrideCollection()
+    {
+        return $this->overrideCollection;
+    }
+
+
 }

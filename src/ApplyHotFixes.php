@@ -19,16 +19,10 @@ class ApplyHotFixes
         $versionCheck = new VersionCheck();
         $versionCheck->check();
 
-        $md5Check = new MD5Check(dirname(__DIR__, 1).'/overrides');
+        $md5Check = new MD5Check(dirname(__DIR__, 1).'/overrides/', dirname(__DIR__, 3));
         $md5Check->check();
 
-    }
-
-    /**
-    * Get the composer json, read it and determine version and only apply to the correct version for this module
-     */
-    private static function checkMagentoVersionMatch()
-    {
+        //Copy the files
 
     }
 }

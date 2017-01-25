@@ -12,7 +12,7 @@ class MD5Check
     public function __construct($path)
     {
         $this->overridePath = $path;
-        echo $path."\n";
+        echo $path . "\n";
     }
 
     public function check()
@@ -21,24 +21,43 @@ class MD5Check
         $dirIter = new \DirectoryIterator($this->overridePath);
 
         $files = $this->searchDir($dirIter);
-
-        var_dump($files);
+        $tree = $this->collapseDirArray($files);
+        var_dump($tree);
 
         return true;
     }
 
-    public function searchDir(\DirectoryIterator $directoryIterator)
+    protected function collapseDirArray(array $tree, $prefix = '')
+    {
+        $result = [];
+        foreach ($tree as $key => $value)
+        {
+            if (is_array($value))
+            {
+                $result = $result + $this->collapseDirArray($value,   $prefix.'/'.$key);
+            }
+            else
+            {
+                $result[] =  trim($prefix.'/'. $value, '/');
+            }
+        }
+
+
+        return $result;
+    }
+
+    protected function searchDir(\DirectoryIterator $directoryIterator)
     {
         $files = [];
-        foreach($directoryIterator as $node)
+        foreach ($directoryIterator as $node)
         {
-            if($node->isDir() && !$node->isDot())
+            if ($node->isDir() && !$node->isDot())
             {
                 $files[basename($node->getPath())] = $this->searchDir(new \DirectoryIterator($node->getPathname()));
                 continue;
             }
 
-            if($node->isDot())
+            if ($node->isDot())
             {
                 continue;
             }

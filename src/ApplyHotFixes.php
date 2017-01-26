@@ -42,6 +42,13 @@ class ApplyHotFixes
             $destination = self::$vendorPath.'/'.$file;
 
             echo "Rewriting: ".$destination."...\n";
+            //Backup the original file
+            if(!copy($destination, $destination.'.orig'))
+            {
+                echo 'Could not back up to '.$destination.'.orig';
+                $copyCheck = false;
+            }
+            //Overwrite the file
             if(!copy($source, $destination))
             {
                 echo 'Could not copy to file '.$destination."\n";

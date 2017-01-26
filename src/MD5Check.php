@@ -44,8 +44,13 @@ class MD5Check
 
             if ($fileMd5 != $md5Check)
             {
-                $continue = false;
-                echo "MD5 check failed for " . $filePath . "\n";
+                //MD5 failed, check that this does not match the rewrite we have already
+                $overrideMd5 = md5(file_get_contents($overridePath));
+                if($fileMd5 != $overrideMd5)
+                {
+                    $continue = false;
+                    echo "MD5 check failed for " . $filePath . "\n";
+                }
             }
         }
 
